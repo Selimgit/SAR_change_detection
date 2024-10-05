@@ -18,12 +18,20 @@ Inputs are two satellite images (as np arrays) with the same size and from the s
 * The ratio of the arithmetic mean to the geometric mean of the spatially averaged intensities. The asymmetric term focuses more specifically on amplitude variations.
 It helps to assess how the arithmetic mean of the intensities compares to their geometric mean. A value close to 1 would indicate an almost perfect equality between these means, suggesting uniformity in the amplitudes of the analyzed images.
 
+## Références
+This ratio computation is inspired by the work described in the following paper:
+
+> J. Ni, C. López-Martínez, Z. Hu, et F. Zhang,  
+> "**Multitemporal SAR and Polarimetric SAR Optimization and Classification: Reinterpreting Temporal Coherence**,"  
+> *IEEE Transactions on Geoscience and Remote Sensing*, vol. 60, pp. 1-17, 2022, Art no. 5236617.  
+> [doi: 10.1109/TGRS.2022.3214097](https://doi.org/10.1109/TGRS.2022.3214097)
+
 ## Installation
 
 You can install the package with:
 
-```bash```
-pip install change_detector
+    pip install change_detector
+
 
 ## Requirements
 
@@ -37,26 +45,26 @@ The package depends on the following Python packages:
 
 To use the package, you need to import it and apply it to two satellite images represented as NumPy arrays. Here's an example:
 
-import tifffile
-from change_detector import change_detector
+    import tifffile
+    from change_detector import change_detector
 
 # Load the satellite images
-first_image = tifffile.imread('path/to/first_image.tif')
-second_image = tifffile.imread('path/to/second_image.tif')
+    first_image = tifffile.imread('path/to/first_image.tif')
+    second_image = tifffile.imread('path/to/second_image.tif')
 
 # Run the change detection algorithm
-change_map = change_detector(first_image, second_image)
+    change_map = change_detector(first_image, second_image)
 
 # Display the change map
-import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-cmap = plt.cm.get_cmap('gray', 3)  # Set color map: black for -1, gray for 0, white for 1
-plt.imshow(change_map, cmap=cmap, vmin=-1, vmax=1)
-cbar = plt.colorbar(ticks=[-1, 0, 1])
-cbar.ax.set_yticklabels(['Disappearance (-1)', 'No Change (0)', 'Appearance (1)'])
-plt.title('Change Detection Map')
-plt.axis('off')
-plt.show()
+    cmap = plt.cm.get_cmap('gray', 3)  # Set color map: black for -1, gray for 0, white for 1
+    plt.imshow(change_map, cmap=cmap, vmin=-1, vmax=1)
+    cbar = plt.colorbar(ticks=[-1, 0, 1])
+    cbar.ax.set_yticklabels(['Disappearance (-1)', 'No Change (0)', 'Appearance (1)'])
+    plt.title('Change Detection Map')
+    plt.axis('off')
+    plt.show()
 
 
 ## Parameters
