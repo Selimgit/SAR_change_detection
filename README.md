@@ -45,7 +45,7 @@ The package depends on the following Python packages:
 
 ## Example
 
-You can download the tutorial folder or directly test the function on Google Colab [here](https://colab.research.google.com/github/Selimgit/SAR_change_detection/blob/main/tutorial/notebook.ipynb).
+You can download the tutorial folder or directly test the function on Google Colab [here](https://colab.research.google.com/github/Selimgit/SAR_change_detection/blob/main/tutorial/Tutorial_Change_Detector.ipynb).
 
 The tutorial folder contains example images and a Jupyter notebook that demonstrates how to use the change detection function.
 
