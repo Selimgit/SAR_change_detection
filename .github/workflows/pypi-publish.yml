@@ -2,8 +2,8 @@ name: Publish to PyPI
 
 on:
   push:
-    tags:
-      - 'v*'  # Publie sur PyPI quand un tag commençant par 'v' est poussé
+    branches:
+      - main  # Publie sur PyPI quand un commit est poussé sur la branche principale
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'  
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
