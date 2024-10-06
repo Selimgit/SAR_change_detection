@@ -50,7 +50,9 @@ You can download the tutorial folder or directly test the function on Google Col
 The tutorial folder contains example images and a Jupyter notebook that demonstrates how to use the change detection function.
 
 ### Inputs Images
+
 ![Input Image 1](readme_images/first_date.png)
+
 
 ![Input Image 2](readme_images/second_date.png)
 
@@ -63,6 +65,7 @@ The output is a change map where:
     1 indicates areas where changes involve appearance.
 
 ### Example using Sentinel 1 on Djeddah port
+
 ![Change detection](readme_images/change_detection_map.png)
 
 
