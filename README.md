@@ -51,7 +51,12 @@ The tutorial folder contains example images and a Jupyter notebook that demonstr
 
 ### Inputs Images
 
+### First date
+
 ![Input Image 1](https://raw.githubusercontent.com/Selimgit/SAR_change_detection/main/readme_images/first_date.png)
+
+### Second date
+
 ![Input Image 2](https://raw.githubusercontent.com/Selimgit/SAR_change_detection/main/readme_images/second_date.png)
 
 ## Results
