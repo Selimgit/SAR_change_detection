@@ -30,7 +30,7 @@ This ratio computation is inspired by the work described in the following paper:
 
 You can install the package with:
 
-    pip install change_detector
+    pip install SAR_change_detector
 
 
 ## Requirements
@@ -41,21 +41,21 @@ The package depends on the following Python packages:
     scikit-learn
     scipy
 
-## Usage
+# Usage
 
 To use the package, you need to import it and apply it to two satellite images represented as NumPy arrays. Here's an example:
 
     import tifffile
-    from change_detector import change_detector
+    from SAR_change_detector import detect_changes
 
-# Load the satellite images
+## Load the satellite images
     first_image = tifffile.imread('path/to/first_image.tif')
     second_image = tifffile.imread('path/to/second_image.tif')
 
-# Run the change detection algorithm
-    change_map = change_detector(first_image, second_image)
+## Run the change detection algorithm
+    change_map = detect_changes(first_image, second_image)
 
-# Display the change map
+## Display the change map
     import matplotlib.pyplot as plt
 
     cmap = plt.cm.get_cmap('gray', 3)  # Set color map: black for -1, gray for 0, white for 1
@@ -69,7 +69,7 @@ To use the package, you need to import it and apply it to two satellite images r
 
 ## Parameters
 
-    first_image, second_image: The two SAR satellite images to compare. These should be np.array objects, typically loaded using a library such as tifffile.
+    first_image, second_image: The two SAR satellite images to compare. These should be np.array objects with the same size and from the same region of interest.
 
     filter_size: The size of the filter used in the asymmetric term computation (default is (3, 3)).
 
