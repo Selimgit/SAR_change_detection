@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='SAR_change_detector',
-    version='0.1.1',
+    version='0.1.2',
     author='Selim Behloul',
     author_email='selim.behloul@gmail.com',
     description='A package for detecting changes between two images using Isolation Forest',
