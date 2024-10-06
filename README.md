@@ -2,15 +2,15 @@
 
 ## Overview
 
-Change Detector is a lightweight and quick change detector. This Python package has been designed to detect changes between two satellite images, specifically for Synthetic Aperture Radar (SAR) data. By leveraging SAR amplitude information and the Isolation Forest algorithm, this package allows users to identify areas of change effectively. It is particularly useful for those working in remote sensing, environmental monitoring, agriculture, or urban planning.
+Change Detector is a lightweight and quick (~5seconds without GPU) **change detector**. This Python package has been designed to detect changes between two satellite images, specifically for **Synthetic Aperture Radar (SAR) data**. By leveraging SAR amplitude information and the Isolation Forest algorithm, this package allows users to identify areas of change effectively. It is particularly useful for those working in remote sensing, environmental monitoring, agriculture, or urban planning.
 
 The function returns a detailed change map that highlights regions of appearance and disappearance, helping users gain insights into landscape dynamics.
 
 ## Features
 
 - Detects changes between two SAR images using amplitude information.
-- Identifies changes as either appearance or disappearance.
 - Uses Isolation Forest to classify areas of significant change.
+- Identifies changes as either appearance or disappearance.
 - Customizable parameters such as filter size and contamination level for fine-tuning.
 
 Inputs are two satellite images (as np arrays) with the same size and from the same area. Then the code computes a ratio using amplitudes SAR information* and therefore Isolation Forest.
@@ -45,11 +45,13 @@ The package depends on the following Python packages:
 
 ## Example
 
-You can download the tutorial folder or directly test the function on Google Colab [here](https://colab.research.google.com/github/Selimgit/SAR_change_detector/blob/main/examples/example_change_detection.ipynb).
+You can download the tutorial folder or directly test the function on Google Colab [here](https://colab.research.google.com/github/Selimgit/SAR_change_detector/blob/main/tutorial/notebook.ipynb).
 
+The tutorial folder contains example images and a Jupyter notebook that demonstrates how to use the change detection function.
 
 ### Inputs Images
 ![Input Image 1](readme_images/first_date.png)
+
 ![Input Image 2](readme_images/second_date.png)
 
 ## Results
@@ -60,13 +62,15 @@ The output is a change map where:
     0 indicates no change.
     1 indicates areas where changes involve appearance.
 
-### Change detection results
+### Example using Sentinel 1 on Djeddah port
 ![Change detection](readme_images/change_detection_map.png)
 
 
 ## 3 Parameters
 
-    first_image, second_image: The two SAR satellite images to compare. These should be np.array objects with the same size and from the same region of interest.
+    first_image, second_image: The two SAR satellite images to compare. 
+    These should be np.array objects with the same size, from the same region of interest
+    at 2 different acquisition times.
 
     filter_size: The size of the filter used in the asymmetric term computation (default is (3, 3)).
 
