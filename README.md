@@ -30,7 +30,7 @@ This ratio computation is inspired by the work described in the following paper:
 
 You can install the package with:
 
-    pip install SAR_change_detector
+    pip install SAR-change-detector
 
 
 ## Requirements
