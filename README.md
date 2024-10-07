@@ -2,7 +2,7 @@
 
 ## Overview
 
-Change Detector is a lightweight and quick (~5seconds without GPU) **change detector**. This Python package has been designed to detect changes between two satellite images, specifically for **Synthetic Aperture Radar (SAR) data**. By leveraging SAR amplitude information and the Isolation Forest algorithm, this package allows users to identify areas of change effectively. It is particularly useful for those working in remote sensing, environmental monitoring, agriculture, or urban planning.
+This python package is a lightweight and quick (~5seconds without GPU) **change detector**. This Python package has been designed to detect changes between two satellite images, specifically for **Synthetic Aperture Radar (SAR) data**. By leveraging SAR amplitude information and the Isolation Forest algorithm, this package allows users to identify areas of change effectively. It is particularly useful for those working in remote sensing, environmental monitoring, agriculture, or urban planning.
 
 The function returns a detailed change map that highlights regions of appearance and disappearance, helping users gain insights into landscape dynamics.
 
