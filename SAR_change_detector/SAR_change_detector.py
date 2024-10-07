@@ -1,93 +1,149 @@
 import numpy as np
 from scipy import ndimage
 from sklearn.ensemble import IsolationForest
+from typing import Tuple, Optional
 
+def uniform_spatial_filter(u: np.ndarray, filter_size: Tuple[int, int]) -> np.ndarray:
+    """
+    Applies a uniform spatial filter (mean filter) to the input array `u`.
 
-def uniform_spatial_filter(u, filter_size):
-    return ndimage.uniform_filter(u, size=filter_size, mode="nearest")
+    Args:
+        u: 2D array-like input data.
+        filter_size: Size of the filter window.
 
+    Returns:
+        Filtered array of the same shape as input `u`.
 
-def compute_filtered_magnitude(amp, filter_size):
-    return uniform_spatial_filter(amp**2, filter_size)
+    Raises:
+        ValueError: If `u` is not a 2D array or `filter_size` is not a tuple of two positive integers.
+    """
+    if u.ndim != 2:
+        raise ValueError("Input array `u` must be a 2D array.")
+    if not (isinstance(filter_size, tuple) and len(filter_size) == 2 and all(isinstance(x, int) and x > 0 for x in filter_size)):
+        raise ValueError("`filter_size` must be a tuple of two positive integers.")
+    
+    try:
+        return ndimage.uniform_filter(u, size=filter_size, mode="nearest")
+    except Exception as e:
+        raise RuntimeError(f"Error applying uniform filter: {e}")
 
+def compute_filtered_magnitude(amp: np.ndarray, filter_size: Tuple[int, int]) -> np.ndarray:
+    """
+    Computes the magnitude of the filtered input by squaring the amplitude and applying the spatial filter.
+
+    Args:
+        amp: Amplitude array (can be a real or complex image).
+        filter_size: Size of the uniform filter.
+
+    Returns:
+        Filtered magnitude array.
+
+    Raises:
+        ValueError: If `amp` is not a 2D array or `filter_size` is not a tuple of two positive integers.
+    """
+    if amp.ndim != 2:
+        raise ValueError("Amplitude array `amp` must be a 2D array.")
+    
+    # Use magnitude squared for complex numbers
+    magnitude_squared = np.abs(amp) ** 2
+    
+    return uniform_spatial_filter(magnitude_squared, filter_size)
 
 def generate_asym(
-    filter_size=(1, 4),
-    primary_amp=None,
-    secondary_amp=None
-):
-    # Vérification des types et des données fournies
-    assert type(filter_size) == tuple, "filter size must be tuple"
-    assert (primary_amp is not None) and (secondary_amp is not None), "amplitudes should be provided for asym computation"
+    filter_size: Tuple[int, int] = (1, 4),
+    primary_amp: Optional[np.ndarray] = None,
+    secondary_amp: Optional[np.ndarray] = None
+) -> np.ndarray:
+    """
+    Generates the asymmetry map between two input amplitude images.
 
-    # Création du masque pour les valeurs NaN
+    Args:
+        filter_size: Size of the uniform filter used in magnitude computation.
+        primary_amp: Primary amplitude image (2D array).
+        secondary_amp: Secondary amplitude image (2D array).
+
+    Returns:
+        2D asymmetry map with NaN values in regions where the input images contained NaNs.
+
+    Raises:
+        ValueError: If `primary_amp` or `secondary_amp` is not provided or their shapes don't match.
+    """
+    if primary_amp is None or secondary_amp is None:
+        raise ValueError("Both primary and secondary amplitudes must be provided.")
+    if primary_amp.size == 0 or secondary_amp.size == 0:
+        raise ValueError("Amplitude arrays must not be empty.")
+    if primary_amp.shape != secondary_amp.shape:
+        raise ValueError("Primary and secondary amplitude arrays must have the same shape.")
+    if primary_amp.ndim != 2 or secondary_amp.ndim != 2:
+        raise ValueError("Amplitude arrays must be 2D.")
+
     nanmask = np.isnan(primary_amp) | np.isnan(secondary_amp)
+    primary_amp_clean = np.nan_to_num(primary_amp)
+    secondary_amp_clean = np.nan_to_num(secondary_amp)
 
-    # Mise à zéro des amplitudes dans les zones NaN
-    primary_amp[nanmask] = 0
-    secondary_amp[nanmask] = 0
+    filtered_primary_mag = compute_filtered_magnitude(primary_amp_clean, filter_size)
+    filtered_secondary_mag = compute_filtered_magnitude(secondary_amp_clean, filter_size)
 
-    # Calcul du terme asymétrique (asym)
-    asym = ((compute_filtered_magnitude(primary_amp, filter_size) 
-             + compute_filtered_magnitude(secondary_amp, filter_size)) / 2) / (
-                np.sqrt(compute_filtered_magnitude(primary_amp, filter_size) 
-                * compute_filtered_magnitude(secondary_amp, filter_size)) + 1e-10
-            )
+    denominator = np.sqrt(filtered_primary_mag * filtered_secondary_mag) + 1e-10  # Add epsilon to avoid division by zero
+    asym = (filtered_primary_mag + filtered_secondary_mag) / (2 * denominator)
+    np.reciprocal(asym, out=asym)
+
     asym[nanmask] = np.nan
-    asym = 1 / asym  # Inversion du résultat pour obtenir l'asymétrie correcte
 
     return asym
 
-
-# Fonction principale de détection de changement
-def detect_changes(first_image, second_image, filter_size=(3, 3), contamination=0.02):
-    
-    
+def detect_changes(
+    first_image: np.ndarray,
+    second_image: np.ndarray,
+    filter_size: Tuple[int, int] = (3, 3),
+    contamination: float = 0.02
+) -> np.ndarray:
     """
-Detects changes between two input images.
+    Detects changes between two input images using asymmetry filtering and Isolation Forest for anomaly detection.
 
-Parameters:
-- first_image: np.array, the first input image.
-- second_image: np.array, the second input image.
-- filter_size: tuple, the filter size used for generating asymmetric term.
-- contamination: float, the contamination parameter for Isolation Forest.
+    Args:
+        first_image: The first input image (2D array).
+        second_image: The second input image (2D array).
+        filter_size: The filter size used for generating the asymmetry map.
+        contamination: The contamination parameter for Isolation Forest, indicating the proportion of anomalies.
 
-Returns:
-- final_change_map: np.array, a change map with values -1, 0, and 1.
-    - -1 indicates disappearance.
-    - 0 indicates no change.
-    - 1 indicates appearance.
-"""
-    # Calculer l'amplitude des deux images
+    Returns:
+        A change map with values -1, 0, and 1:
+        - -1 indicates disappearance.
+        - 0 indicates no change.
+        - 1 indicates appearance.
+
+    Raises:
+        ValueError: If input images are not 2D or don't have matching shapes.
+    """
+    if first_image.shape != second_image.shape:
+        raise ValueError("Input images must have the same shape.")
+    if first_image.ndim != 2 or second_image.ndim != 2:
+        raise ValueError("Input images must be 2D arrays.")
+    if first_image.size == 0 or second_image.size == 0:
+        raise ValueError("Input images must not be empty.")
+
     amp_first = np.abs(first_image)
     amp_second = np.abs(second_image)
 
-    # Générer la carte asymétrique
-    asym_test = generate_asym(filter_size=filter_size, primary_amp=amp_first, secondary_amp=amp_second)
+    asym_map = generate_asym(filter_size=filter_size, primary_amp=amp_first, secondary_amp=amp_second)
 
-    # Appliquer Isolation Forest pour détecter les changements
-    height, width = asym_test.shape
-    data = asym_test.ravel().reshape(-1, 1)
+    height, width = asym_map.shape
+    flattened_asym = asym_map.ravel().reshape(-1, 1)
 
-    isolation_forest = IsolationForest(contamination=contamination, random_state=0)
-    anomaly_labels = isolation_forest.fit_predict(data)
+    try:
+        isolation_forest = IsolationForest(contamination=contamination, random_state=0)
+        anomaly_labels = isolation_forest.fit_predict(flattened_asym)
+    except Exception as e:
+        raise RuntimeError(f"Error applying Isolation Forest: {e}")
 
-    # Convertir les labels d'anomalies en une image binaire
-    anomalies_image = (anomaly_labels == -1).astype(np.uint8).reshape(height, width)
-
-    # Créer l'image de changement final
-    # Initialiser l'image de sortie avec des zéros
+    anomalies_image = anomaly_labels.reshape(height, width)
     final_change_map = np.zeros_like(anomalies_image, dtype=np.int8)
-
-    # Différence entre la première et la deuxième image
+    
+    # Difference between amplitudes for post anomaly detection classification
     difference = amp_second - amp_first
-
-    # Appliquer la règle de segmentation sur les zones détectées comme changements
-    # Là où anomalies_image est 1 (c.-à-d. changements détectés)
-    final_change_map[anomalies_image == 1] = np.where(difference[anomalies_image == 1] > 0, 1, -1)
-
+    
+    # If an anomaly is detected, mark appearance (1) or disappearance (-1)
+    final_change_map[anomalies_image == -1] = np.where(difference[anomalies_image == -1] > 0, 1, -1)
+    
     return final_change_map
-
-
-
-

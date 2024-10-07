@@ -82,7 +82,24 @@ The output is a change map where:
 
     contamination: The proportion of points to consider as anomalies for Isolation Forest. Default is 0.02.
 
+## Development setup
 
+Create a new virtual environment and install the required packages:
+
+```zsh
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+pip install -r requirements-dev.txt
+```
+
+## Tests
+
+To run the tests, use the following command:
+
+```zsh
+pytest tests/test_sar_detector.py
+```
 
 ## Contributing
 
